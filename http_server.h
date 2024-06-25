@@ -12,18 +12,11 @@ struct http_server_param {
     struct socket *listen_socket;
 };
 
-// manage workqueue
-struct http_service {
+struct khttpd_service {
     bool is_stopped;
-    struct list_head worker;
+    struct list_head head;
 };
-
-// manage work
-struct http_server {
-    struct socket *sock;
-    struct list_head list;
-    struct work_struct http_work;
-};
+extern struct khttpd_service daemon_list;
 
 extern int http_server_daemon(void *arg);
 
