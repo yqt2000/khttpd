@@ -10,15 +10,21 @@
 
 #define DEFAULT_PORT 8081
 #define DEFAULT_BACKLOG 100
+#define PATH_LENGTH 100
 
 static ushort port = DEFAULT_PORT;
 module_param(port, ushort, S_IRUGO);
 static ushort backlog = DEFAULT_BACKLOG;
 module_param(backlog, ushort, S_IRUGO);
+static char WWWROOT[PATH_LENGTH] = {0};
+module_param_string(WWWROOT, WWWROOT, PATH_LENGTH, 0);
 
 static struct socket *listen_socket;
 static struct http_server_param param;
 static struct task_struct *http_server;
+
+extern struct khttpd_service daemon_list;
+
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
 static int set_sock_opt(struct socket *sock,
@@ -159,6 +165,11 @@ static int __init khttpd_init(void)
         pr_err("can't open listen socket\n");
         return err;
     }
+
+    if (!*WWWROOT)  // prevent empty input from user
+        WWWROOT[0] = '/';
+    daemon_list.path = WWWROOT;
+
     param.listen_socket = listen_socket;
     http_server = kthread_run(http_server_daemon, &param, KBUILD_MODNAME);
     if (IS_ERR(http_server)) {
