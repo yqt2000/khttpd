@@ -10,7 +10,7 @@ fi
 # load kHTTPd
 sudo rmmod -f khttpd 2>/dev/null
 sleep 1
-sudo insmod $KHTTPD_MOD WWWROOT='/home/oldwustd1/linux2024'
+sudo insmod $KHTTPD_MOD WWWROOT='"/home/oldwustd1/linux2024"'
 
 # run HTTP benchmarking
 #./htstress -n 100000 -c 1 -t 4 http://localhost:8081/

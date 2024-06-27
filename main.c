@@ -4,6 +4,7 @@
 #include <linux/sched/signal.h>
 #include <linux/tcp.h>
 #include <linux/version.h>
+#include <linux/workqueue.h>
 #include <net/sock.h>
 
 #include "http_server.h"
@@ -22,6 +23,7 @@ module_param_string(WWWROOT, WWWROOT, PATH_LENGTH, 0);
 static struct socket *listen_socket;
 static struct http_server_param param;
 static struct task_struct *http_server;
+struct workqueue_struct *khttpd_wq;
 
 extern struct khttpd_service daemon_list;
 
@@ -171,6 +173,7 @@ static int __init khttpd_init(void)
     daemon_list.path = WWWROOT;
 
     param.listen_socket = listen_socket;
+    khttpd_wq = alloc_workqueue("khttp_wq", WQ_UNBOUND, 0); /* workqueue.h API*/
     http_server = kthread_run(http_server_daemon, &param, KBUILD_MODNAME);
     if (IS_ERR(http_server)) {
         pr_err("can't start http server daemon\n");
